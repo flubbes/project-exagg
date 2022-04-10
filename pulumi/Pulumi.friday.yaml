@@ -1,0 +1,7 @@
+config:
+  exagg:clusterName: friday
+  exagg:deployPlex: "true"
+  exagg:deployUnifi: "true"
+  exagg:kubeConfigPath: ../.kubeconfig
+  exagg:olmVersion: 0.20.0
+  pulumi:disable-default-providers: []

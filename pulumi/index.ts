@@ -2,25 +2,24 @@ import * as pulumi from "@pulumi/pulumi";
 import * as kubernetes from "@pulumi/kubernetes";
 import * as kx from "@pulumi/kubernetesx";
 import * as command from "@pulumi/command";
+import { commandProvider, kubernetesProvider } from "./src/providers";
+import { config } from "./src/config";
 
 // config
-const config = new pulumi.Config();
 const olmVersion = config.require("olmVersion");
 
 // providers
-const commandProvider = new command.Provider("command-provider");
-const kubernetesProvider = new kubernetes.Provider("kubernetes-provider", {
-  cluster: config.require("clusterName"),
-  kubeconfig: config.require("kubeConfigPath"),
-});
 
 // OLM
 const olm = new command.local.Command(
   "olm-install",
   {
     dir: ".",
-    create: `curl -sL https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v${olmVersion}/install.sh | bash -s v${olmVersion} || true`,
+    create: `export KUBECONFIG=${config.require(
+      "kubeConfigPath"
+    )} && curl -sL https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v${olmVersion}/install.sh | bash -s v${olmVersion} || true`,
     delete: `
+        export KUBECONFIG=${config.require("kubeConfigPath")};
         kubectl delete apiservices.apiregistration.k8s.io v1.packages.operators.coreos.com; 
         kubectl delete -f https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v${olmVersion}/crds.yaml;
         kubectl delete -f https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v${olmVersion}/olm.yaml || true`,
@@ -37,7 +36,8 @@ const monitoringNamespace = new kubernetes.core.v1.Namespace(
     metadata: {
       name: "monitoring",
     },
-  }
+  },
+  { provider: kubernetesProvider }
 );
 new kubernetes.apiextensions.CustomResource(
   "grafana-operator-group",
@@ -179,7 +179,7 @@ const postgres = new kubernetes.apiextensions.CustomResource(
       },
     },
   },
-  { dependsOn: postgresOperator }
+  { dependsOn: postgresOperator, provider: kubernetesProvider }
 );
 
 const getGrafanaPostgresSecret = async () => {
@@ -313,12 +313,47 @@ new kubernetes.apiextensions.CustomResource(
       },
     },
   },
-  { dependsOn: [prometheusOperator, monitoringNamespace] }
+  {
+    dependsOn: [prometheusOperator, monitoringNamespace],
+    provider: kubernetesProvider,
+  }
 );
 
 // smart home
-const namespace = new kubernetes.core.v1.Namespace("smart-home", {
-  metadata: {
-    name: "smart-home",
+const namespace = new kubernetes.core.v1.Namespace(
+  "smart-home",
+  {
+    metadata: {
+      name: "smart-home",
+    },
   },
-});
+  { provider: kubernetesProvider }
+);
+
+new kubernetes.helm.v3.Release(
+  "homebridge",
+  {
+    chart: "homebridge",
+    // https://artifacthub.io/packages/helm/k8s-at-home/homebridge
+    version: "4.3.1",
+    namespace: namespace.metadata.name,
+    repositoryOpts: {
+      repo: "https://k8s-at-home.com/charts/",
+    },
+    // https://github.com/k8s-at-home/library-charts/blob/main/charts/stable/common/values.yaml
+    values: {
+      hostNetwork: true,
+      persistence: {
+        config: {
+          enabled: true,
+          type: "hostPath",
+          hostPath: "/k3s-storage/homebridge",
+        },
+      },
+    },
+  },
+  { provider: kubernetesProvider }
+);
+
+import "./src/plex";
+import "./src/unifi";
