@@ -1,0 +1,5 @@
+config:
+  exagg:clusterName: minikube
+  exagg:kubeConfigPath: /home/fabian/.kube/config
+  exagg:olmVersion: 0.20.0
+  pulumi:disable-default-providers: []

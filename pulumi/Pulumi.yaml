@@ -1,0 +1,3 @@
+name: exagg
+runtime: nodejs
+description: Exagg config in pulumi
