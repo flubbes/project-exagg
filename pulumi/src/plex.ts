@@ -17,14 +17,6 @@ if (config.getBoolean("deployPlex") === true) {
         annotations: {},
       },
       spec: {
-        podManagementPolicy: "OrderedReady",
-        revisionHistoryLimit: 10,
-        updateStrategy: {
-          rollingUpdate: {
-            partition: 0,
-          },
-          type: "RollingUpdate",
-        },
         serviceName: "plex",
         replicas: 1,
         selector: {
@@ -50,10 +42,6 @@ if (config.getBoolean("deployPlex") === true) {
                 // https://github.com/k8s-at-home/container-images/pkgs/container/plex
                 image: "ghcr.io/k8s-at-home/plex:v1.25.3.5409-f11334058",
                 name: "plex",
-                imagePullPolicy: "IfNotPresent",
-                resources: {},
-                terminationMessagePath: "/dev/termination-log",
-                terminationMessagePolicy: "File",
                 volumeMounts: [
                   {
                     mountPath: "/config",
@@ -66,23 +54,17 @@ if (config.getBoolean("deployPlex") === true) {
                 ],
               },
             ],
-            dnsPolicy: "ClusterFirst",
-            restartPolicy: "Always",
-            schedulerName: "default-scheduler",
-            terminationGracePeriodSeconds: 30,
             volumes: [
               {
                 name: "plex-config",
                 hostPath: {
                   path: "/k3s-storage/plex-config",
-                  type: "",
                 },
               },
               {
                 name: "plex-multimedia",
                 hostPath: {
                   path: "/k3s-storage/multimedia",
-                  type: "",
                 },
               },
             ],

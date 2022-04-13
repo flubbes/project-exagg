@@ -19,18 +19,10 @@ if (config.getBoolean("deployUnifi") === true) {
       spec: {
         serviceName: "unifi",
         replicas: 1,
-        podManagementPolicy: "OrderedReady",
-        revisionHistoryLimit: 10,
         selector: {
           matchLabels: {
             app: "unifi",
           },
-        },
-        updateStrategy: {
-          rollingUpdate: {
-            partition: 0,
-          },
-          type: "RollingUpdate",
         },
         template: {
           metadata: {
@@ -39,7 +31,6 @@ if (config.getBoolean("deployUnifi") === true) {
             },
           },
           spec: {
-            securityContext: {},
             hostNetwork: true,
             containers: [
               {
@@ -52,22 +43,13 @@ if (config.getBoolean("deployUnifi") === true) {
                     name: "unifi-config",
                   },
                 ],
-                imagePullPolicy: "IfNotPresent",
-                resources: {},
-                terminationMessagePath: "/dev/termination-log",
-                terminationMessagePolicy: "File",
               },
             ],
-            dnsPolicy: "ClusterFirst",
-            restartPolicy: "Always",
-            schedulerName: "default-scheduler",
-            terminationGracePeriodSeconds: 30,
             volumes: [
               {
                 name: "unifi-config",
                 hostPath: {
                   path: "/k3s-storage/unifi-controller",
-                  type: "",
                 },
               },
             ],

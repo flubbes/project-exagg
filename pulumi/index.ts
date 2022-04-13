@@ -4,6 +4,7 @@ import * as kx from "@pulumi/kubernetesx";
 import * as command from "@pulumi/command";
 import { commandProvider, kubernetesProvider } from "./src/providers";
 import { config } from "./src/config";
+import { monitoringNamespace } from "./src/namespaces";
 
 // config
 const olmVersion = config.require("olmVersion");
@@ -30,15 +31,6 @@ const olm = new command.local.Command(
 );
 
 // grafana operator
-const monitoringNamespace = new kubernetes.core.v1.Namespace(
-  "monitoring-namespace",
-  {
-    metadata: {
-      name: "monitoring",
-    },
-  },
-  { provider: kubernetesProvider }
-);
 new kubernetes.apiextensions.CustomResource(
   "grafana-operator-group",
   {
@@ -188,7 +180,7 @@ const getGrafanaPostgresSecret = async () => {
       return kubernetes.core.v1.Secret.get(
         "postgres-grafana-secret",
         pulumi.interpolate`${monitoringNamespace.metadata.name}/${secretNameWithPostgresCredentials}`,
-        { dependsOn: postgres }
+        { dependsOn: postgres, provider: kubernetesProvider }
       );
     } catch {
       await new Promise((r) => setTimeout(r, 2000));
@@ -300,17 +292,15 @@ new kubernetes.apiextensions.CustomResource(
       namespace: monitoringNamespace.metadata.name,
     },
     spec: {
-      serviceAccountName: "prometheus",
-      serviceMonitorSelector: {
-        matchLabels: {
-          monitor: "on",
-        },
-      },
-      podMonitorSelector: {
-        matchLabels: {
-          monitor: "on",
-        },
-      },
+      replicas: 1,
+      serviceMonitorNamespaceSelector: {},
+      serviceMonitorSelector: {},
+      podMonitorNamespaceSelector: {},
+      podMonitorSelector: {},
+      probeNamespaceSelector: {},
+      probeSelector: {},
+      ruleNamespaceSelector: {},
+      ruleSelector: {},
     },
   },
   {
@@ -357,3 +347,6 @@ new kubernetes.helm.v3.Release(
 
 import "./src/plex";
 import "./src/unifi";
+import "./src/shelly-exporter";
+import "./src/datasources";
+import "./src/dashboards";
