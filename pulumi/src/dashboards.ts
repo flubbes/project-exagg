@@ -8,6 +8,9 @@ new kubernetes.apiextensions.CustomResource(`shelly-plug-probe`, {
   kind: "GrafanaDashboard",
   metadata: {
     namespace: monitoringNamespace.metadata.name,
+    labels: {
+      app: "grafana"
+    }
   },
   spec: {
     datasources: [
