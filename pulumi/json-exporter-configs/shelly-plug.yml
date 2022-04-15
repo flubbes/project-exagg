@@ -21,3 +21,7 @@ metrics:
   - name: shelly_plug_device_state
     help: Whether the channel is turned ON or OFF
     path: "{ .relays[0].ison }"
+
+  - name: shelly_plug_device_state
+    help: Whether an update is available
+    path: "{ .update.has_update }"
