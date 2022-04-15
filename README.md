@@ -29,13 +29,20 @@ The name of this project stands for exaggeration. This is my personal grafana mo
 
 ## Plan
 
-- Setup grafana
-- Setup prometheus
-- Setup shelly plugs in my home
-- scrape those shelly plugs
-- monitor home energy consumption
-- jail the plugs in a specific wifi for smart home appliances
-- setup the wifi with the pulumi unifi controller
+- ✅ Setup grafana
+- ✅ Setup prometheus
+- ✅ Setup shelly plugs in my home
+- ✅ scrape those shelly plugs
+- ✅ monitor home energy consumption
+- ✅ jail the plugs in a specific wifi for smart home appliances
+- make grafana and prometheus discoverable over `grafana.bergnet`
+  - setup coredns
+  - configure cordns to use 1.1.1.1 as fallback
+  - make coredns the default dns server over dhcp
+  - deploy external dns and configure the coredns service
+  - setup nginx-ingress controller
+  - make ingresses automatically locally available
+- configure unifi config over terraform provider
 
 ## Setup guide
 
