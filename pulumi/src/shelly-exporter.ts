@@ -62,7 +62,7 @@ new kubernetes.apiextensions.CustomResource(`shelly-plug-probe`, {
     namespace: monitoringNamespace.metadata.name,
   },
   spec: {
-    interval: "15s",
+    interval: "5s",
     jobName: "shelly-plug",
     prober: {
       path: "/probe",
