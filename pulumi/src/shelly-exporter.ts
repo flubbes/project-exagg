@@ -71,10 +71,7 @@ new kubernetes.apiextensions.CustomResource(`shelly-plug-probe`, {
     },
     targets: {
       staticConfig: {
-        static: ([] as string[])
-          .concat(probes.map((probe) => `http://${probe}/meter/0`))
-          .concat(probes.map((probe) => `http://${probe}/status`))
-          .concat(probes.map((probe) => `http://${probe}/relay/0`)),
+        static: probes.map((probe) => `http://${probe}/status`),
       },
     },
   },

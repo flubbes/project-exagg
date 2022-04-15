@@ -3,20 +3,16 @@
 metrics:
   #
   - name: shelly_plug_current_energy_consumption
-    path: "{ .power }"
+    path: "{ .meters[0].power }"
     help: Current real AC power being drawn, in Watts
 
   - name: shelly_plug_power_meter_is_valid
     help: Whether power metering self-checks OK
-    path: "{ .is_valid }"
-
-  - name: shelly_plug_power_limit
-    help: Value in Watts, on which an overpower condition is detected
-    path: "{ .is_valid }"
+    path: "{ .meters[0].is_valid }"
 
   - name: shelly_plug_energy_consumption_total
     help: Total energy consumed by the attached electrical appliance in Watt-minute
-    path: "{ .total }"
+    path: "{ .meters[0].total }"
 
   - name: shelly_plug_device_temperature
     help: Internal device temperature in °C
@@ -24,4 +20,4 @@ metrics:
 
   - name: shelly_plug_device_state
     help: Whether the channel is turned ON or OFF
-    path: "{ .ison }"
+    path: "{ .relays[0].ison }"
