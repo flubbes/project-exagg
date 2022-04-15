@@ -301,6 +301,7 @@ new kubernetes.apiextensions.CustomResource(
       probeSelector: {},
       ruleNamespaceSelector: {},
       ruleSelector: {},
+      retention: "30d",
     },
   },
   {
