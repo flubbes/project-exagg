@@ -302,6 +302,22 @@ new kubernetes.apiextensions.CustomResource(
       ruleNamespaceSelector: {},
       ruleSelector: {},
       retention: "30d",
+      storage: {
+        volumeClaimTemplate: {
+          metadata: {
+            name: "prometheus-pvc",
+            labels: {
+              app: "prometheus",
+            },
+          },
+          spec: {
+            accessModes: ["ReadWriteOnce"],
+            volumeMode: "Filesystem",
+            resources: { requests: { storage: "8Gi" } },
+            storageClassName: "local-path",
+          },
+        },
+      },
     },
   },
   {
@@ -351,3 +367,4 @@ import "./src/unifi";
 import "./src/shelly-exporter";
 import "./src/datasources";
 import "./src/dashboards";
+import "./src/coredns";
