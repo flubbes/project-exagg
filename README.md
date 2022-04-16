@@ -35,7 +35,7 @@ The name of this project stands for exaggeration. This is my personal grafana mo
 - ✅ scrape those shelly plugs
 - ✅ monitor home energy consumption
 - ✅ jail the plugs in a specific wifi for smart home appliances
-- make grafana and prometheus discoverable over `grafana.bergnet`
+- make services discoverable over `grafana.bergnet`
   - setup coredns
   - configure cordns to use 1.1.1.1 as fallback
   - make coredns the default dns server over dhcp
