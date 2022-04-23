@@ -35,7 +35,7 @@ if (config.getBoolean("deployUnifi") === true) {
             containers: [
               {
                 // https://hub.docker.com/r/linuxserver/unifi-controller/tags
-                image: "linuxserver/unifi-controller:7.0.23-ls143", // linuxserver/unifi-controller:7.0.25-ls147
+                image: "linuxserver/unifi-controller:7.0.25-ls147", // linuxserver/unifi-controller:7.0.25-ls147
                 name: "unifi-controller",
                 volumeMounts: [
                   {
