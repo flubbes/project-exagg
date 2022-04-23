@@ -54,25 +54,29 @@ const service = deployment.createService({ type: "ClusterIP" });
 
 const probes = readInventorySync().shellyPlugs;
 
-new kubernetes.apiextensions.CustomResource(`shelly-plug-probe`, {
-  apiVersion: "monitoring.coreos.com/v1",
-  kind: "Probe",
-  metadata: {
-    labels: { probe: "shelly-plug" },
-    namespace: monitoringNamespace.metadata.name,
-  },
-  spec: {
-    interval: "5s",
-    jobName: "shelly-plug",
-    prober: {
-      path: "/probe",
-      scheme: "http",
-      url: pulumi.interpolate`${service.metadata.name}:7979`,
+new kubernetes.apiextensions.CustomResource(
+  `shelly-plug-probe`,
+  {
+    apiVersion: "monitoring.coreos.com/v1",
+    kind: "Probe",
+    metadata: {
+      labels: { probe: "shelly-plug" },
+      namespace: monitoringNamespace.metadata.name,
     },
-    targets: {
-      staticConfig: {
-        static: probes.map((probe) => `http://${probe}/status`),
+    spec: {
+      interval: "5s",
+      jobName: "shelly-plug",
+      prober: {
+        path: "/probe",
+        scheme: "http",
+        url: pulumi.interpolate`${service.metadata.name}:7979`,
+      },
+      targets: {
+        staticConfig: {
+          static: probes.map((probe) => `http://${probe}/status`),
+        },
       },
     },
   },
-});
+  { provider: kubernetesProvider }
+);

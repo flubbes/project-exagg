@@ -1,5 +1,6 @@
 import * as kubernetes from "@pulumi/kubernetes";
 import { monitoringNamespace } from "./namespaces";
+import { kubernetesProvider } from "./providers";
 
 export const prometheusDataSourceName = "Prometheus";
 
@@ -29,5 +30,6 @@ export const prometheusDataSource = new kubernetes.apiextensions.CustomResource(
         },
       ],
     },
-  }
+  },
+  { provider: kubernetesProvider }
 );

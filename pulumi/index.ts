@@ -1,34 +1,17 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as kubernetes from "@pulumi/kubernetes";
-import * as kx from "@pulumi/kubernetesx";
-import * as command from "@pulumi/command";
-import { commandProvider, kubernetesProvider } from "./src/providers";
-import { config } from "./src/config";
+import { kubernetesProvider } from "./src/providers";
 import { monitoringNamespace } from "./src/namespaces";
-
-// config
-const olmVersion = config.require("olmVersion");
-
-// providers
-
-// OLM
-const olm = new command.local.Command(
-  "olm-install",
-  {
-    dir: ".",
-    create: `export KUBECONFIG=${config.require(
-      "kubeConfigPath"
-    )} && curl -sL https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v${olmVersion}/install.sh | bash -s v${olmVersion} || true`,
-    delete: `
-        export KUBECONFIG=${config.require("kubeConfigPath")};
-        kubectl delete apiservices.apiregistration.k8s.io v1.packages.operators.coreos.com; 
-        kubectl delete -f https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v${olmVersion}/crds.yaml;
-        kubectl delete -f https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v${olmVersion}/olm.yaml || true`,
-  },
-  {
-    provider: commandProvider,
-  }
-);
+import "./src/plex";
+import "./src/unifi";
+import "./src/shelly-exporter";
+import "./src/datasources";
+import "./src/dashboards";
+import "./src/coredns";
+import "./src/version-checker";
+import "./src/prometheus-operator";
+import "./src/prometheus";
+import { olm } from "./src/olm";
 
 // grafana operator
 new kubernetes.apiextensions.CustomResource(
@@ -78,26 +61,6 @@ const postgresOperator = new kubernetes.apiextensions.CustomResource(
     spec: {
       channel: "v5",
       name: "postgresql",
-      source: "operatorhubio-catalog",
-      sourceNamespace: "olm",
-    },
-  },
-  { provider: kubernetesProvider, dependsOn: [olm] }
-);
-
-// prometheus operator
-const prometheusOperator = new kubernetes.apiextensions.CustomResource(
-  "prometheus-operator-subscription",
-  {
-    apiVersion: "operators.coreos.com/v1alpha1",
-    kind: "Subscription",
-    metadata: {
-      name: "prometheus-operator",
-      namespace: "operators",
-    },
-    spec: {
-      channel: "beta",
-      name: "prometheus",
       source: "operatorhubio-catalog",
       sourceNamespace: "olm",
     },
@@ -281,51 +244,6 @@ getGrafanaPostgresSecret().then((grafanaPostgresSecret) => {
   );
 });
 
-// prometheus
-new kubernetes.apiextensions.CustomResource(
-  "prometheus",
-  {
-    apiVersion: "monitoring.coreos.com/v1",
-    kind: "Prometheus",
-    metadata: {
-      name: "prometheus",
-      namespace: monitoringNamespace.metadata.name,
-    },
-    spec: {
-      replicas: 1,
-      serviceMonitorNamespaceSelector: {},
-      serviceMonitorSelector: {},
-      podMonitorNamespaceSelector: {},
-      podMonitorSelector: {},
-      probeNamespaceSelector: {},
-      probeSelector: {},
-      ruleNamespaceSelector: {},
-      ruleSelector: {},
-      retention: "30d",
-      storage: {
-        volumeClaimTemplate: {
-          metadata: {
-            name: "prometheus-pvc",
-            labels: {
-              app: "prometheus",
-            },
-          },
-          spec: {
-            accessModes: ["ReadWriteOnce"],
-            volumeMode: "Filesystem",
-            resources: { requests: { storage: "8Gi" } },
-            storageClassName: "local-path",
-          },
-        },
-      },
-    },
-  },
-  {
-    dependsOn: [prometheusOperator, monitoringNamespace],
-    provider: kubernetesProvider,
-  }
-);
-
 // smart home
 const namespace = new kubernetes.core.v1.Namespace(
   "smart-home",
@@ -361,10 +279,3 @@ new kubernetes.helm.v3.Release(
   },
   { provider: kubernetesProvider }
 );
-
-import "./src/plex";
-import "./src/unifi";
-import "./src/shelly-exporter";
-import "./src/datasources";
-import "./src/dashboards";
-import "./src/coredns";
