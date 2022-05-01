@@ -44,15 +44,10 @@ The name of this project stands for exaggeration. This is my personal grafana mo
   - make ingresses automatically locally available
 - configure unifi config over terraform provider
 
-## Setup guide
+## Local DNS with CoreDNS Requirements
 
-1. Install OLM `curl -sL https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.20.0/install.sh | bash -s v0.20.0`
-   - <https://github.com/operator-framework/operator-lifecycle-manager>
-2. Install the grafana operator `kubectl apply -f grafana/grafana-operator.yaml`
-
-## Local DNS Service
-
-3. Install CoreDNS `helm repo add coredns https://coredns.github.io/helm`
+- k3s with traefik as ingress controller
+- disable resolved on ubuntu to listen on port 53 => https://www.linuxuprising.com/2020/07/ubuntu-how-to-free-up-port-53-used-by.html
 
 ## Uninstalling an operator
 

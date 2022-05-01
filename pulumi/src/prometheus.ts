@@ -113,3 +113,36 @@ new kubernetes.apiextensions.CustomResource(
     provider: kubernetesProvider,
   }
 );
+
+new kubernetes.networking.v1.Ingress(
+  "prometheus",
+  {
+    metadata: {
+      namespace: monitoringNamespace.metadata.name,
+    },
+    spec: {
+      rules: [
+        {
+          host: "prom.home",
+          http: {
+            paths: [
+              {
+                path: "/",
+                pathType: "Prefix",
+                backend: {
+                  service: {
+                    name: "prometheus-operated",
+                    port: {
+                      number: 9090,
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        },
+      ],
+    },
+  },
+  { provider: kubernetesProvider }
+);

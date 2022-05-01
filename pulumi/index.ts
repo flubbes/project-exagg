@@ -175,6 +175,7 @@ getGrafanaPostgresSecret().then((grafanaPostgresSecret) => {
         ingress: {
           enabled: true,
           pathType: "Prefix",
+          hostname: "grafana.home",
           path: "/",
         },
         config: {
